@@ -1,0 +1,7 @@
+{% extends 'home.html' %}
+
+{% block products_content %}
+    {% for product in products %}
+        <a class="product" href="">{{ product.name }}</a>
+    {% endfor %}
+{% endblock %}
