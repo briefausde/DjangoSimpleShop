@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {% if cart_items %}
+        Items in your card: {{ cart_items }}
+    {% endif %}
     <div id="main" role="main">
         {% block products_content %}
         {% endblock %}

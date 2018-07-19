@@ -8,4 +8,19 @@
     {% endblock %}
 	</body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        function add_to_cart(item){
+            $.ajax({
+                url: "/cart/add",
+                type: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    item: item
+                },
+                success: function(){
+                    alert('success add to card');
+                }
+            });
+        }
+    </script>
 </html>

@@ -1,6 +1,6 @@
 from .models import *
 from django.forms.models import model_to_dict
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from .forms import ProductForm
 
@@ -14,8 +14,16 @@ from django.views.generic import (
 
 class Home(ListView):
     model = Product
-    context_object_name = 'products'
     template_name = 'products.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(Home, self).get_context_data(**kwargs)
+        context['products'] = self.get_queryset()
+
+        if self.request.session.get('cart_items', False):
+            context['cart_items'] = len(self.request.session['cart_items'].split(','))
+
+        return context
 
 
 class ProductDetail(View):
@@ -48,3 +56,13 @@ class ProductEdit(UpdateView):
 
     def get_success_url(self):
         return '/'
+
+
+class AddItemToCart(View):
+
+    def post(self, *args, **kwargs):
+        if self.request.session.get('cart_items', False):
+            self.request.session['cart_items'] += ',%s' % self.request.POST.get('item')
+        else:
+            self.request.session['cart_items'] = self.request.POST.get('item')
+        return HttpResponse('ok')
