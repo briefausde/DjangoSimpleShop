@@ -2,7 +2,7 @@
 
 {% block content %}
     {% if cart_items %}
-        Items in your card: {{ cart_items }}
+        Items in your <a href="{% url 'cart' %}">cart</a>: {{ cart_items }}
     {% endif %}
     <div id="main" role="main">
         {% block products_content %}

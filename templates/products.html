@@ -2,6 +2,10 @@
 
 {% block products_content %}
     {% for product in products %}
-        <div><a class="product" href="">{{ product.name }}</a> | <a onclick="add_to_cart({{ product.pk }})">Add to Cart</a></div>
+        <div>
+            <a class="product" href="{% url 'product_detail' pk=product.pk %}">
+                {{ product.name }}
+            </a> | <a onclick="add_to_cart({{ product.pk }})">Add to Cart</a>
+        </div>
     {% endfor %}
 {% endblock %}

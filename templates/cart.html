@@ -1,7 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {% if price %}
+        Total price: {{ price }}
+    {% endif %}
     {% for product in products %}
-        <div><a class="cart_item" href="">{{ product.name }}</a> | <a onclick="remove_from_cart({{ product.pk }})">Remove</a></div>
+        <div>
+            <a class="cart_item" href="{% url 'product_detail' pk=product.pk %}">
+                {{ product.name }}
+            </a> | <a onclick="remove_from_cart({{ product.pk }})">Remove</a>
+        </div>
     {% endfor %}
 {% endblock %}

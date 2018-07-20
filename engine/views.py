@@ -63,6 +63,11 @@ class Cart(ListView):
     context_object_name = 'products'
     template_name = 'cart.html'
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(Cart, self).get_context_data(**kwargs)
+        context['price'] = sum([product.price for product in self.get_queryset()])
+        return context
+
     def get_queryset(self):
         if self.request.session.get('cart_items', False):
             return [get_object_or_404(self.model, pk=pk) for pk in self.request.session['cart_items']]
@@ -89,3 +94,17 @@ class RemoveItemFromCart(View):
                 self.request.session['cart_items'].remove(item)
                 self.request.session.modified = True
         return HttpResponse('ok')
+
+
+class BuyProduct(CreateView):
+    model = Customer
+    fields = ['payment_method', 'delivery_method', 'name', 'surname', 'patronymic', 'address', 'email', 'phone', 'comment']
+    template_name = 'form.html'
+
+    def get_success_url(self):
+        if self.request.session.get('cart_items', False):
+            items = [get_object_or_404(Product, pk=pk) for pk in self.request.session['cart_items']]
+            for item in items:
+                Order.objects.create(customer=self.object, product=item)
+            del self.request.session['cart_items']
+        return '/'
