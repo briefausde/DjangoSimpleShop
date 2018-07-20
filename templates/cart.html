@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for product in products %}
+        <div><a class="cart_item" href="">{{ product.name }}</a> | <a onclick="remove_from_cart({{ product.pk }})">Remove</a></div>
+    {% endfor %}
+{% endblock %}

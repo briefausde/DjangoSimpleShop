@@ -18,7 +18,20 @@
                     item: item
                 },
                 success: function(){
-                    alert('success add to card');
+                    alert('success add to cart');
+                }
+            });
+        }
+        function remove_from_cart(item){
+            $.ajax({
+                url: "/cart/remove",
+                type: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    item: item
+                },
+                success: function(){
+                    alert('success remove from cart');
                 }
             });
         }

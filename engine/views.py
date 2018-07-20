@@ -21,7 +21,7 @@ class Home(ListView):
         context['products'] = self.get_queryset()
 
         if self.request.session.get('cart_items', False):
-            context['cart_items'] = len(self.request.session['cart_items'].split(','))
+            context['cart_items'] = len(self.request.session['cart_items'])
 
         return context
 
@@ -58,11 +58,34 @@ class ProductEdit(UpdateView):
         return '/'
 
 
+class Cart(ListView):
+    model = Product
+    context_object_name = 'products'
+    template_name = 'cart.html'
+
+    def get_queryset(self):
+        if self.request.session.get('cart_items', False):
+            return [get_object_or_404(self.model, pk=pk) for pk in self.request.session['cart_items']]
+        return []
+
+
 class AddItemToCart(View):
 
     def post(self, *args, **kwargs):
         if self.request.session.get('cart_items', False):
-            self.request.session['cart_items'] += ',%s' % self.request.POST.get('item')
+            self.request.session['cart_items'].append(int(self.request.POST.get('item')))
+            self.request.session.modified = True
         else:
-            self.request.session['cart_items'] = self.request.POST.get('item')
+            self.request.session['cart_items'] = [int(self.request.POST.get('item'))]
+        return HttpResponse('ok')
+
+
+class RemoveItemFromCart(View):
+
+    def post(self, *args, **kwargs):
+        if self.request.session.get('cart_items', False):
+            item = int(self.request.POST.get('item'))
+            if item in self.request.session['cart_items']:
+                self.request.session['cart_items'].remove(item)
+                self.request.session.modified = True
         return HttpResponse('ok')
