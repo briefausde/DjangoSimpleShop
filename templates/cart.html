@@ -11,4 +11,5 @@
             </a> | <a onclick="remove_from_cart({{ product.pk }})">Remove</a>
         </div>
     {% endfor %}
+    <br><br><a href="{% url 'buy' %}">Buy</a>
 {% endblock %}

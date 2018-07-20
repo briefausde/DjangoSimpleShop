@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {{ order.email }}<br>
+    {{ order.comment }}<br>
+    {% for product in products %}
+        <a href="{% url 'product_detail' pk=product.product.pk %}">{{ product.product.name }}</a><br>
+    {% endfor %}
+{% endblock %}

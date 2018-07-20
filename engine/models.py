@@ -2,8 +2,6 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
-from django.db.models import signals
-from django.dispatch import receiver
 
 
 class ProductCategory(models.Model):
@@ -46,7 +44,7 @@ class DeliveryType(models.Model):
         return self.name
 
 
-class Customer(models.Model):
+class Order(models.Model):
     payment_method = models.ForeignKey(PaymentType, on_delete=models.CASCADE)
     delivery_method = models.ForeignKey(DeliveryType, on_delete=models.CASCADE)
     name = models.CharField(max_length=64)
@@ -58,23 +56,15 @@ class Customer(models.Model):
     phone = models.CharField(validators=[phone_regex], max_length=17, blank=True)
     comment = models.TextField(max_length=2000, blank=True)
     created_date = models.DateTimeField(default=timezone.now, editable=False)
-
-    def __str__(self):
-        return self.email
-
-
-# @receiver(signals.post_save, sender=Customer)
-# def create_order(sender, instance, created, **kwargs):
-#     if created:
-#         products = None  # data from session
-#         for product in products:
-#             Order.objects.create(customer=instance, product=product)
-
-
-class Order(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     executed = models.BooleanField(default=False)
 
     def __str__(self):
-        return "{} {}".format(self.customer.email, self.product.name)
+        return "{} by {}".format(self.pk, self.email)
+
+
+class OrderedProduct(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{} ordered {}".format(self.order.email, self.product.name)

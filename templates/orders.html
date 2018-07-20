@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for order in orders %}
+        <a href="{% url 'order_detail' pk=order.pk %}">{{ order.email }}</a><br>
+    {% endfor %}
+{% endblock %}

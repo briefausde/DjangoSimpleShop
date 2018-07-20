@@ -8,7 +8,8 @@ from django.views.generic import (
     ListView,
     View,
     CreateView,
-    UpdateView
+    UpdateView,
+    DetailView
 )
 
 
@@ -97,14 +98,48 @@ class RemoveItemFromCart(View):
 
 
 class BuyProduct(CreateView):
-    model = Customer
+    model = Order
     fields = ['payment_method', 'delivery_method', 'name', 'surname', 'patronymic', 'address', 'email', 'phone', 'comment']
     template_name = 'form.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(BuyProduct, self).get_context_data(**kwargs)
+        products = self.get_queryset()
+        context['ordered_products'] = products
+        context['ordered_products_price'] = sum([product.price for product in products])
+        return context
+
     def get_success_url(self):
-        if self.request.session.get('cart_items', False):
-            items = [get_object_or_404(Product, pk=pk) for pk in self.request.session['cart_items']]
+        items = self.get_queryset()
+        if items:
             for item in items:
-                Order.objects.create(customer=self.object, product=item)
+                OrderedProduct.objects.create(order=self.object, product=item)
             del self.request.session['cart_items']
         return '/'
+
+    def get_queryset(self):
+        if self.request.session.get('cart_items', False):
+            return [get_object_or_404(Product, pk=pk) for pk in self.request.session['cart_items']]
+        return []
+
+
+class Orders(ListView):
+    model = Order
+    template_name = 'orders.html'
+    context_object_name = 'orders'
+
+
+class Order(DetailView):
+    model = Order
+    template_name = 'order_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(Order, self).get_context_data()
+        order = self.get_object()
+        context['order'] = order
+        context['products'] = OrderedProduct.objects.filter(order=order)
+        return context
+
+    def get_object(self):
+        return get_object_or_404(self.model, pk=self.kwargs['pk'])
+
