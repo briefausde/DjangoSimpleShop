@@ -4,12 +4,9 @@
     {% if price %}
         Total price: {{ price }}
     {% endif %}
+
     {% for product in products %}
-        <div>
-            <a class="cart_item" href="{% url 'product_detail' pk=product.pk %}">
-                {{ product.name }}
-            </a> | <a onclick="remove_from_cart({{ product.pk }})">Remove</a>
-        </div>
+            {% include 'product.html' %} | <a onclick="remove_from_cart({{ product.pk }})">Remove</a>
     {% endfor %}
     <br><br><a href="{% url 'buy' %}">Buy</a>
 {% endblock %}

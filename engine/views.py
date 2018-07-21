@@ -15,7 +15,7 @@ from django.views.generic import (
 
 class Home(ListView):
     model = Product
-    template_name = 'products.html'
+    template_name = 'home.html'
 
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
@@ -114,8 +114,8 @@ class OrderCreate(CreateView):
     def get_context_data(self, **kwargs):
         context = super(OrderCreate, self).get_context_data(**kwargs)
         products = self.get_queryset()
-        context['ordered_products'] = products
-        context['ordered_products_price'] = sum([product.price for product in products])
+        context['products'] = products
+        context['products_price'] = sum([product.price for product in products])
         return context
 
     def get_success_url(self):
@@ -149,7 +149,7 @@ class OrderDetail(DetailView):
         context = super(OrderDetail, self).get_context_data()
         order = self.get_object()
         context['order'] = order
-        context['products'] = OrderedProduct.objects.filter(order=order)
+        context['products'] = [ordered.product for ordered in OrderedProduct.objects.filter(order=order)]
         return context
 
     def get_object(self):

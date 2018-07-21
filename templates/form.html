@@ -5,10 +5,10 @@
         {{ form.as_p }}
         <input type="submit" value="Submit">
     </form>
-    {% if ordered_products %}
-        You ordered on {{ ordered_products_price }}:
-        {% for product in ordered_products %}
-            <br><a class="product" href="{% url 'product_detail' pk=product.pk %}">{{ product.name }}</a>
+    {% if products %}
+        You ordered on {{ products_price }}:
+        {% for product in products %}
+            {% include 'product.html' %}
         {% endfor %}
         <br><br><a href="{% url 'cart' %}">Back to cart</a>
     {% endif %}

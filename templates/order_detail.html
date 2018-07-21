@@ -12,6 +12,6 @@
     {{ order.comment }}<br>
     <br><br>Products:
     {% for product in products %}
-        <br><a href="{% url 'product_detail' pk=product.product.pk %}">{{ product.product.name }}</a>
+        {% include 'product.html' %}
     {% endfor %}
 {% endblock %}
