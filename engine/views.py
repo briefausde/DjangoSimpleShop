@@ -59,13 +59,13 @@ class ProductEdit(UpdateView):
         return '/'
 
 
-class Cart(ListView):
+class CartItemsList(ListView):
     model = Product
     context_object_name = 'products'
     template_name = 'cart.html'
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = super(Cart, self).get_context_data(**kwargs)
+        context = super(CartItemsList, self).get_context_data(**kwargs)
         context['price'] = sum([product.price for product in self.get_queryset()])
         return context
 
@@ -75,7 +75,7 @@ class Cart(ListView):
         return []
 
 
-class AddItemToCart(View):
+class CartItemCreate(View):
 
     def post(self, *args, **kwargs):
         if self.request.session.get('cart_items', False):
@@ -86,7 +86,7 @@ class AddItemToCart(View):
         return HttpResponse('ok')
 
 
-class RemoveItemFromCart(View):
+class CartItemDelete(View):
 
     def post(self, *args, **kwargs):
         if self.request.session.get('cart_items', False):
@@ -97,13 +97,22 @@ class RemoveItemFromCart(View):
         return HttpResponse('ok')
 
 
-class BuyProduct(CreateView):
+class OrderCreate(CreateView):
     model = Order
-    fields = ['payment_method', 'delivery_method', 'name', 'surname', 'patronymic', 'address', 'email', 'phone', 'comment']
+    fields = [
+        'payment_method',
+        'delivery_method',
+        'name', 'surname',
+        'patronymic',
+        'address',
+        'email',
+        'phone',
+        'comment'
+    ]
     template_name = 'form.html'
 
     def get_context_data(self, **kwargs):
-        context = super(BuyProduct, self).get_context_data(**kwargs)
+        context = super(OrderCreate, self).get_context_data(**kwargs)
         products = self.get_queryset()
         context['ordered_products'] = products
         context['ordered_products_price'] = sum([product.price for product in products])
@@ -123,18 +132,21 @@ class BuyProduct(CreateView):
         return []
 
 
-class Orders(ListView):
+class OrderList(ListView):
     model = Order
     template_name = 'orders.html'
     context_object_name = 'orders'
 
+    def get_queryset(self):
+        return self.model.objects.filter(executed=False)
 
-class Order(DetailView):
+
+class OrderDetail(DetailView):
     model = Order
     template_name = 'order_detail.html'
 
     def get_context_data(self, **kwargs):
-        context = super(Order, self).get_context_data()
+        context = super(OrderDetail, self).get_context_data()
         order = self.get_object()
         context['order'] = order
         context['products'] = OrderedProduct.objects.filter(order=order)
@@ -142,4 +154,3 @@ class Order(DetailView):
 
     def get_object(self):
         return get_object_or_404(self.model, pk=self.kwargs['pk'])
-

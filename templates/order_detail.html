@@ -1,9 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {{ order.payment_method }}<br>
+    {{ order.delivery_method }}<br>
+    {{ order.name }}<br>
+    {{ order.surname }}<br>
+    {{ order.patronymic }}<br>
+    {{ order.address }}<br>
     {{ order.email }}<br>
+    {{ order.phone }}<br>
     {{ order.comment }}<br>
+    <br><br>Products:
     {% for product in products %}
-        <a href="{% url 'product_detail' pk=product.product.pk %}">{{ product.product.name }}</a><br>
+        <br><a href="{% url 'product_detail' pk=product.product.pk %}">{{ product.product.name }}</a>
     {% endfor %}
 {% endblock %}

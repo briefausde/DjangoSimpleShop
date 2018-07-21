@@ -28,10 +28,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.Home.as_view(), name='home'),
     path('product/', include(product_urls)),
-    path('cart/add', views.AddItemToCart.as_view(), name="add_to_cart"),
-    path('cart/remove', views.RemoveItemFromCart.as_view(), name="remove_from_cart"),
-    path('cart/', views.Cart.as_view(), name="cart"),
-    path('buy/', views.BuyProduct.as_view(), name="buy"),
-    path('orders/', views.Orders.as_view(), name="orders"),
-    url(r'^order/(?P<pk>[0-9]+)/$', views.Order.as_view(), name='order_detail')
+    path('cart/add', views.CartItemCreate.as_view(), name="add_to_cart"),
+    path('cart/remove', views.CartItemDelete.as_view(), name="remove_from_cart"),
+    path('cart/', views.CartItemsList.as_view(), name="cart"),
+    path('buy/', views.OrderCreate.as_view(), name="buy"),
+    path('orders/', views.OrderList.as_view(), name="orders"),
+    url(r'^order/(?P<pk>[0-9]+)/$', views.OrderDetail.as_view(), name='order_detail')
 ]
