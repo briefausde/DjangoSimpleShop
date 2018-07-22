@@ -1,8 +1,14 @@
-from .models import *
+import hashlib
+from random import random
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms.models import model_to_dict
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.conf.global_settings import SECRET_KEY
+from django.urls import reverse
+
 from .forms import ProductForm
+from .models import *
 
 from django.views.generic import (
     ListView,
@@ -11,6 +17,15 @@ from django.views.generic import (
     UpdateView,
     DetailView
 )
+
+
+class StaffRequiredMixin(LoginRequiredMixin):
+    raise_exception = True
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return self.handle_no_permission()
+        return super(StaffRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 class Home(ListView):
@@ -40,7 +55,7 @@ class ProductDetail(View):
         return get_object_or_404(self.model, pk=self.kwargs['pk'])
 
 
-class ProductCreate(CreateView):
+class ProductCreate(StaffRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
     template_name = 'form.html'
@@ -50,7 +65,7 @@ class ProductCreate(CreateView):
         return super(ProductCreate, self).form_valid(form)
 
 
-class ProductEdit(UpdateView):
+class ProductEdit(StaffRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = 'form.html'
@@ -111,6 +126,11 @@ class OrderCreate(CreateView):
     ]
     template_name = 'form.html'
 
+    def get_queryset(self):
+        if self.request.session.get('cart_items', False):
+            return [get_object_or_404(Product, pk=pk) for pk in self.request.session['cart_items']]
+        return []
+
     def get_context_data(self, **kwargs):
         context = super(OrderCreate, self).get_context_data(**kwargs)
         products = self.get_queryset()
@@ -118,27 +138,18 @@ class OrderCreate(CreateView):
         context['products_price'] = sum([product.price for product in products])
         return context
 
+    def form_valid(self, form):
+        key = "{}{}{}{}".format(SECRET_KEY, form.instance.email, timezone.now(), random())
+        form.instance.key = hashlib.sha256(key.encode()).hexdigest()
+        return super(OrderCreate, self).form_valid(form)
+
     def get_success_url(self):
         items = self.get_queryset()
         if items:
             for item in items:
                 OrderedProduct.objects.create(order=self.object, product=item)
             del self.request.session['cart_items']
-        return '/'
-
-    def get_queryset(self):
-        if self.request.session.get('cart_items', False):
-            return [get_object_or_404(Product, pk=pk) for pk in self.request.session['cart_items']]
-        return []
-
-
-class OrderList(ListView):
-    model = Order
-    template_name = 'orders.html'
-    context_object_name = 'orders'
-
-    def get_queryset(self):
-        return self.model.objects.filter(executed=False)
+        return reverse('order_detail', args=(self.object.key,))
 
 
 class OrderDetail(DetailView):
@@ -148,9 +159,33 @@ class OrderDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(OrderDetail, self).get_context_data()
         order = self.get_object()
+        context['status'] = order.status
+        return context
+
+    def get_object(self):
+        return get_object_or_404(self.model, key=self.kwargs['key'])
+
+
+class OrderList(StaffRequiredMixin, ListView):
+    model = Order
+    template_name = 'orders.html'
+    context_object_name = 'orders'
+
+
+class OrderProcessing(StaffRequiredMixin, UpdateView):
+    model = Order
+    template_name = 'order_processing.html'
+    fields = ['status']
+
+    def get_context_data(self, **kwargs):
+        context = super(OrderProcessing, self).get_context_data()
+        order = self.get_object()
         context['order'] = order
         context['products'] = [ordered.product for ordered in OrderedProduct.objects.filter(order=order)]
         return context
 
     def get_object(self):
         return get_object_or_404(self.model, pk=self.kwargs['pk'])
+
+    def get_success_url(self):
+        return reverse('order_processing', args=(self.object.pk,))

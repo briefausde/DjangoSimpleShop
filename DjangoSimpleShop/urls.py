@@ -33,5 +33,6 @@ urlpatterns = [
     path('cart/', views.CartItemsList.as_view(), name="cart"),
     path('buy/', views.OrderCreate.as_view(), name="buy"),
     path('orders/', views.OrderList.as_view(), name="orders"),
-    url(r'^order/(?P<pk>[0-9]+)/$', views.OrderDetail.as_view(), name='order_detail')
+    url(r'^order/processing/(?P<pk>[0-9]+)/$', views.OrderProcessing.as_view(), name='order_processing'),
+    url(r'^order/(?P<key>[-\w]+)/$', views.OrderDetail.as_view(), name='order_detail')
 ]

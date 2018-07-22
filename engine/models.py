@@ -44,6 +44,13 @@ class DeliveryType(models.Model):
         return self.name
 
 
+class OrderStatus(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Order(models.Model):
     payment_method = models.ForeignKey(PaymentType, on_delete=models.CASCADE)
     delivery_method = models.ForeignKey(DeliveryType, on_delete=models.CASCADE)
@@ -56,7 +63,8 @@ class Order(models.Model):
     phone = models.CharField(validators=[phone_regex], max_length=17, blank=True)
     comment = models.TextField(max_length=2000, blank=True)
     created_date = models.DateTimeField(default=timezone.now, editable=False)
-    executed = models.BooleanField(default=False)
+    status = models.ForeignKey(OrderStatus, null=True, on_delete=models.CASCADE)
+    key = models.CharField(max_length=64, editable=False, blank=True)
 
     def __str__(self):
         return "{} by {}".format(self.pk, self.email)

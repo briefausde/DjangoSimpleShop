@@ -1,17 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {{ order.payment_method }}<br>
-    {{ order.delivery_method }}<br>
-    {{ order.name }}<br>
-    {{ order.surname }}<br>
-    {{ order.patronymic }}<br>
-    {{ order.address }}<br>
-    {{ order.email }}<br>
-    {{ order.phone }}<br>
-    {{ order.comment }}<br>
-    <br><br>Products:
-    {% for product in products %}
-        {% include 'product.html' %}
-    {% endfor %}
+    {% if status %}
+        We looking on your order
+    {% else %}
+        Wait please
+    {% endif %}
 {% endblock %}

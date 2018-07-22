@@ -2,6 +2,6 @@
 
 {% block content %}
     {% for order in orders %}
-        <a href="{% url 'order_detail' pk=order.pk %}">{{ order.email }}</a><br>
+        <a href="{% url 'order_processing' pk=order.pk %}">{{ order.email }}</a><br>
     {% endfor %}
 {% endblock %}

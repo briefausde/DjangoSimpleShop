@@ -2,10 +2,15 @@
 
 {% block content %}
     {% if cart_items %}
-        Items in your <a href="{% url 'cart' %}">cart</a>: {{ cart_items }}<br><br>
+        Items in your <a href="{% url 'cart' %}">cart</a>: {{ cart_items }}<br>
     {% endif %}
 
     {% for product in products %}
             {% include 'product.html' %} | <a onclick="add_to_cart({{ product.pk }})">Add to Cart</a>
     {% endfor %}
+
+    {% if request.user.is_staff %}
+        <br><br><a href="{% url 'orders' %}">Orders</a>
+    {% endif %}
+
 {% endblock %}
