@@ -1,0 +1,12 @@
+{% extends 'home.html' %}
+
+{% block content_home %}
+    {% for product in products %}
+        <a class="w3-quarter product" data-pk="{{ product.pk }}" style="padding:10px">
+            <img src="{{ product.img_small }}" class="w3-border w3-border-blue w3-hover-border-green" alt="{{ product.name }}" style="width:200px;height:220px">
+            <p>{{ product.name|truncatechars:40|title }}</p>
+            <p>{{ product.price }} $</p>
+            <button onclick="add_to_cart({{ product.pk }})">Add to Cart</button>
+        </a>
+    {% endfor %}
+{% endblock %}

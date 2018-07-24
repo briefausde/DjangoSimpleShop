@@ -30,7 +30,7 @@ class StaffRequiredMixin(LoginRequiredMixin):
 
 class Home(ListView):
     model = Product
-    template_name = 'home.html'
+    template_name = 'main_products.html'
 
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
@@ -38,6 +38,8 @@ class Home(ListView):
 
         if self.request.session.get('cart_items', False):
             context['cart_items'] = len(self.request.session['cart_items'])
+        else:
+            context['cart_items'] = 0
 
         return context
 
@@ -158,8 +160,7 @@ class OrderDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(OrderDetail, self).get_context_data()
-        order = self.get_object()
-        context['status'] = order.status
+        context['status'] = self.get_object().status
         return context
 
     def get_object(self):
@@ -170,6 +171,9 @@ class OrderList(StaffRequiredMixin, ListView):
     model = Order
     template_name = 'orders.html'
     context_object_name = 'orders'
+
+    def get_queryset(self):
+        return self.model.objects.all().order_by('-pk')
 
 
 class OrderProcessing(StaffRequiredMixin, UpdateView):

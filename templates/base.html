@@ -23,6 +23,7 @@
             Description: <p id="productView-description" class="modal-field"></p><br>
             Price: <p id="productView-price" class="modal-field"></p><br>
             Amount: <p id="productView-amount" class="modal-field"></p><br>
+            <button onclick="">Add to Cart</button>
         </div>
     </div>
 
@@ -37,8 +38,9 @@
                     item: item
                 },
                 success: function(){
+                    var cart_amount = $('#cart_items_amount');
+                    cart_amount.html(parseInt(cart_amount.html()) + 1);
                     alert('success add to cart');
-                    location.reload();
                 }
             });
         }

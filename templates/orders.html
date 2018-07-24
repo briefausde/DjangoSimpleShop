@@ -1,7 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'home.html' %}
 
-{% block content %}
+{% block content_home %}
     {% for order in orders %}
-        <a href="{% url 'order_processing' pk=order.pk %}">{{ order.email }}</a><br>
+        <a href="{% url 'order_processing' pk=order.pk %}">{{ order.pk }}. [{{ order.status }}] {{ order.email }}</a><br>
     {% endfor %}
 {% endblock %}
